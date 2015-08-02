@@ -1,0 +1,136 @@
+<!--
+@license
+Copyright (c) 2015 Alberto Congiu
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+-->
+
+<link rel="import" href="../quizjs-player-buzzer/quizjs-player-buzzer.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/av-icons.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+
+<dom-module id="quizjs-player-interface">
+	<style>
+		:host {
+			display: block;
+			text-align: center;
+		}
+
+		#panelAnswer {
+			background: var(--paper-green-300);
+		}
+
+		#panelAnswer paper-button {
+			background: var(--paper-green-100);
+		}
+
+		#panelWait {
+			background: var(--paper-red-300);
+		}
+
+		#panelWait paper-button {
+			background: var(--paper-red-100);
+		}
+	</style>
+	<template>
+		<iron-signals id="signals"></iron-signals>
+		<paper-spinner id="spinner" active alt="Connecting to the game"></paper-spinner>
+
+		<quizjs-player-buzzer hidden id="buzzer" subscribed="{{subscribed}}"></quizjs-player-buzzer>
+		<paper-material id="panelAnswer" class="panel" elevation="1" hidden>
+			<h2>You can answer!</h2>
+			<div>
+				<paper-button raised>
+					<iron-icon icon="av:mic"></iron-icon>
+					Answer
+				</paper-button>
+			</div>
+		</paper-material>
+		<paper-material id="panelWait" class="panel" elevation="1" hidden>
+			<h2>Too slow!</h2>
+			You are in the waiting list. Let's hope their answer is wrong!
+		</paper-material>
+
+		<paper-toast id="newGameToast" text="A new game has started!"></paper-toast>
+	</template>
+	<script>
+		Polymer({
+
+			is: 'quizjs-player-interface',
+
+			properties: {
+				playerId: {
+					type: String
+				},
+				subscribed: {
+					type: Boolean,
+					observer: '_subscribedChanged'
+				}
+			},
+
+			ready: function() {
+				var signals = this.$$('iron-signals');
+
+				signals.addEventListener('iron-signal-quizjs-update', this._onQuizJsStateUpdate.bind(this));
+				signals.addEventListener('iron-signal-quizjs-reset', this._onQuizJsStateReset.bind(this));
+				signals.addEventListener('iron-signal-quizjs-player-register', this._onQuizJsPlayerRegister.bind(this));
+			},
+
+			/** Property Observers */
+
+			_subscribedChanged: function() {
+				if (this.subscribed) {
+					this._quizJsPlayer.subscribe();
+				} else {
+					this._reset();
+				}
+			},
+
+			/** Private Methods */
+
+			_changePanel: function(speakerId) {
+				var canAnswer = speakerId === this.playerId;
+				this.toggleAttribute('hidden', !canAnswer, this.$.panelAnswer);
+				this.toggleAttribute('hidden', canAnswer, this.$.panelWait);
+			},
+
+			_init: function(playerId) {
+				this._quizJsPlayer = document.getElementsByTagName('quizjs-player')[0];
+
+				this.$.spinner.active = false;
+				this.playerId = playerId;
+				this._showBuzzer(true);
+			},
+
+			_reset: function() {
+				this._showBuzzer(true);
+				this.toggleAttribute('hidden', true, this.$.panelAnswer);
+				this.toggleAttribute('hidden', true, this.$.panelWait);
+				this.$.newGameToast.show();
+			},
+
+			_showBuzzer: function(isShow) {
+				this.toggleAttribute('hidden', !isShow, this.$.buzzer);
+			},
+
+			/** QuizJS Event Listeners */
+
+			_onQuizJsStateUpdate: function(data) {
+				if (this.subscribed) {
+					this._showBuzzer(false);
+					this._changePanel(data.detail.speakerId);
+				}
+			},
+
+			_onQuizJsStateReset: function(data) {
+				this.subscribed = false;
+			},
+
+			_onQuizJsPlayerRegister: function(event) {
+				this._init(event.detail.playerId);
+			}
+
+		});
+	</script>
+</dom-module>

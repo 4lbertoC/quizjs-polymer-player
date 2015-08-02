@@ -1,0 +1,41 @@
+<!--
+@license
+Copyright (c) 2015 Alberto Congiu
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+-->
+
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<dom-module id="about-button">
+	<style>
+		:host {
+			display: block;
+		}
+	</style>
+	<template>
+		<paper-icon-button icon="info-outline" on-tap="showInfoDialog"></paper-icon-button>
+	</template>
+	<script>
+		var aboutDialog;
+
+		Polymer({
+			
+			is: 'about-button',
+
+			ready: function() {
+				  window.addEventListener('WebComponentsReady', function() {
+				    aboutDialog = document.getElementById('about-dialog');
+				  });
+			},
+
+			showInfoDialog: function() {
+				aboutDialog.open();
+			},
+
+			hideInfoDialog: function() {
+				aboutDialog.close();
+			}
+
+		});
+	</script>
+</dom-module>

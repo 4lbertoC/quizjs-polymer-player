@@ -1,0 +1,52 @@
+<!--
+@license
+Copyright (c) 2015 Alberto Congiu
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+-->
+
+<script src="quizjs-player.js"></script>
+
+<dom-module id="quizjs-player">
+	<style>
+		:host {
+			display: block;
+		}
+	</style>
+	<script>
+		Polymer({
+			
+			is: 'quizjs-player',
+
+			properties: {
+				serverUrl: String
+			},
+
+			ready: function() {
+				this._quizJsPlayer = new QuizJsPlayer();
+		
+				this._quizJsPlayer.on(QuizJsPlayer.EVENT.STATE.UPDATE, this._onQuizJsStateUpdate.bind(this));
+				this._quizJsPlayer.on(QuizJsPlayer.EVENT.STATE.RESET, this._onQuizJsStateReset.bind(this));
+				this._quizJsPlayer.on(QuizJsPlayer.EVENT.PLAYER.REGISTER, this._onQuizJsPlayerRegister.bind(this));
+
+				this._quizJsPlayer.connect(this.serverUrl);
+			},
+
+			_onQuizJsStateUpdate: function(data) {
+				this.fire('iron-signal', { name: 'quizjs-update', data: data });
+			},
+
+			_onQuizJsStateReset: function(data) {
+				this.fire('iron-signal', { name: 'quizjs-reset', data: data });
+			},
+
+			_onQuizJsPlayerRegister: function(data) {
+				this.fire('iron-signal', { name: 'quizjs-player-register', data: data });
+			},
+
+			subscribe: function() {
+				this._quizJsPlayer.subscribe();
+			}
+
+ 		});
+	</script>
+</dom-module>

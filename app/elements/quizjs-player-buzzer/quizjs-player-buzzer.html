@@ -1,0 +1,47 @@
+<!--
+@license
+Copyright (c) 2015 Alberto Congiu
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+-->
+
+<link rel="import" href="../../bower_components/iron-signals/iron-signals.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+
+<dom-module id="quizjs-player-buzzer">
+	<style>
+		:host {
+			display: block;
+		}
+
+		paper-fab {
+			--paper-fab-background: var(--paper-red-600);
+			--paper-fab-keyboard-focus-background: var(--paper-red-900);
+			width: 200px;
+			height: 200px;
+		}
+	</style>
+	<template>
+		<paper-fab on-tap="onBuzzerTap"></paper-fab>
+	</template>
+
+	<script>
+		Polymer({
+			
+			is: 'quizjs-player-buzzer',
+
+			properties: {
+				subscribed: {
+					type: Boolean,
+					notify: true
+				}
+			},
+
+			onBuzzerTap: function() {
+				this.subscribed = true;
+			}
+
+		});
+	</script>
+</dom-module>
